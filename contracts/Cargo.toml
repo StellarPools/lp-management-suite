@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "aggregator",
     "adapters/soroswap_adapter",
     "adapters/phoenix_adapter",
     "adapters/generic_amm_adapter",
