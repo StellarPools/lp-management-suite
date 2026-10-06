@@ -3,7 +3,7 @@ use soroban_sdk::{Address, Env, Vec};
 use crate::errors::Error;
 use crate::events::Withdraw;
 use crate::router::call_withdraw;
-use crate::storage::{get_pool_config, get_position, is_paused, set_position};
+use crate::storage::{get_pool_config, get_position, is_paused, set_position, remove_position};
 use crate::types::{Allocation, Position};
 
 pub fn withdraw(env: &Env, user: &Address, allocations: &Vec<Allocation>) -> Result<(), Error> {
@@ -27,11 +27,11 @@ pub fn withdraw(env: &Env, user: &Address, allocations: &Vec<Allocation>) -> Res
         let positions = get_position(env, user);
         let position = positions.iter().find(|p| p.pool_id == pool_id).ok_or(Error::InsufficientBalance)?;
 
-        let shares_to_withdraw = if amount >= position.shares {
-            position.shares
-        } else {
-            amount
-        };
+        if amount > position.shares {
+            return Err(Error::InsufficientBalance);
+        }
+
+        let shares_to_withdraw = amount;
 
         if shares_to_withdraw <= 0 {
             return Err(Error::InsufficientBalance);
@@ -46,13 +46,17 @@ pub fn withdraw(env: &Env, user: &Address, allocations: &Vec<Allocation>) -> Res
             0
         };
 
-        let new_position = Position {
-            pool_id: pool_id.clone(),
-            shares: new_shares,
-            cost_basis: new_cost_basis,
-            last_compound_ts: position.last_compound_ts,
-        };
-        set_position(env, user, &pool_id, &new_position);
+        if new_shares == 0 {
+            remove_position(env, user, &pool_id);
+        } else {
+            let new_position = Position {
+                pool_id: pool_id.clone(),
+                shares: new_shares,
+                cost_basis: new_cost_basis,
+                last_compound_ts: position.last_compound_ts,
+            };
+            set_position(env, user, &pool_id, &new_position);
+        }
 
         Withdraw {
             user: user.clone(),

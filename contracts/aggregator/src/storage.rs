@@ -47,6 +47,24 @@ pub fn set_position(env: &Env, user: &Address, pool_id: &String, position: &Posi
     }
 }
 
+pub fn remove_position(env: &Env, user: &Address, pool_id: &String) {
+    let key = StorageKey::Position(user.clone(), pool_id.clone());
+    env.storage().instance().remove(&key);
+    
+    let position_keys: Vec<StorageKey> = env.storage().instance().get(&StorageKey::PositionKeys).unwrap_or(Vec::new(env));
+    let mut new_position_keys = Vec::new(env);
+    for k in position_keys.iter() {
+        if let StorageKey::Position(ref addr, ref pid) = k {
+            if addr != user || pid != pool_id {
+                new_position_keys.push_back(k.clone());
+            }
+        } else {
+            new_position_keys.push_back(k.clone());
+        }
+    }
+    env.storage().instance().set(&StorageKey::PositionKeys, &new_position_keys);
+}
+
 pub fn get_pool_config(env: &Env, pool_id: &String) -> Option<PoolConfig> {
     env.storage().instance().get(&StorageKey::PoolConfig(pool_id.clone()))
 }

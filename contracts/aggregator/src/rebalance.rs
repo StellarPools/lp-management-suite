@@ -22,6 +22,14 @@ pub fn rebalance(
         return Err(Error::InvalidWeights);
     }
 
+    // Validate that all pools in target_weights are registered and active
+    for pool_id in target_weights.keys().into_iter() {
+        let pool_config = get_pool_config(env, &pool_id).ok_or(Error::PoolNotRegistered)?;
+        if !pool_config.active {
+            return Err(Error::PoolNotRegistered);
+        }
+    }
+
     let current_positions = get_position(env, user);
     let mut current_total_value: i128 = 0;
     for pos in current_positions.iter() {
