@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contracttype, Address, Env, String};
+use soroban_sdk::{contracttype, Address, Env, String, contractclient};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -11,6 +11,7 @@ pub struct YieldInfo {
     pub fee_tier_bps: u32,
 }
 
+#[contractclient(name = "PoolAdapterClient")]
 pub trait PoolAdapter {
     fn deposit(env: Env, user: Address, amount: i128) -> i128;
     fn withdraw(env: Env, user: Address, shares: i128) -> i128;
