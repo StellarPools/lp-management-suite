@@ -1,0 +1,20 @@
+{
+  "name": "@lp-suite/keeper",
+  "version": "0.1.0",
+  "description": "Off-chain keeper service for LP Management Suite — scheduled compounding and alert polling",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@lp-suite/sdk": "file:../sdk"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "ts-node": "10.9.2",
+    "typescript": "5.5.4"
+  }
+}
