@@ -6,3 +6,5 @@ license = "MIT"
 
 [lib]
 crate-type = ["rlib"]
+
+[dev-dependencies]
