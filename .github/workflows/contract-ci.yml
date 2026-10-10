@@ -38,6 +38,10 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      - name: Install system dependencies for soroban-cli
+        # libdbus-1-dev is required by soroban-cli's keyring/secret-service support
+        run: sudo apt-get update -qq && sudo apt-get install -y libdbus-1-dev pkg-config
+
       - name: Install Soroban CLI
         run: cargo install --locked soroban-cli
         # soroban-cli is required by `soroban contract build`
