@@ -1,0 +1,67 @@
+# Contract CI — build, test, and lint the Soroban contracts workspace.
+# Runs the commands documented in README.md "Building the Contracts" and "Testing > Contract Tests".
+name: Contract CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contract-ci.yml"
+  pull_request:
+    paths:
+      - "contracts/**"
+      - ".github/workflows/contract-ci.yml"
+
+jobs:
+  build-and-test:
+    name: Build, test, and lint contracts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+
+      - name: Cache Cargo registry and build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            contracts/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install Soroban CLI
+        run: cargo install --locked soroban-cli
+        # soroban-cli is required by `soroban contract build`
+
+      - name: Build contracts workspace
+        # Per README "Building the Contracts": soroban contract build
+        run: |
+          cd contracts
+          soroban contract build
+
+      - name: Run contract tests
+        # Per README "Testing > Contract Tests": cargo test --workspace
+        run: |
+          cd contracts
+          cargo test --workspace
+
+      - name: Run Clippy (treat warnings as errors)
+        # Per README "Testing > Contract Tests": cargo clippy --workspace -- -D warnings
+        run: |
+          cd contracts
+          cargo clippy --workspace -- -D warnings
+
+      - name: Check formatting
+        # Per README "Contributing > Code Style": cargo fmt
+        run: |
+          cd contracts
+          cargo fmt --all -- --check

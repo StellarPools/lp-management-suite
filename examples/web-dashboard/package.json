@@ -1,0 +1,19 @@
+{
+  "name": "@lp-suite/example-web-dashboard",
+  "version": "0.1.0",
+  "description": "Minimal front-end wiring for the LP Management Suite SDK",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@lp-suite/sdk": "file:../../sdk"
+  },
+  "devDependencies": {
+    "typescript": "5.5.4",
+    "vite": "5.3.4"
+  }
+}
